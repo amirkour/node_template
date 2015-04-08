@@ -27,4 +27,4 @@ build/Release
 node_modules
 
 # leave css files out. stylus will compile .styl files to css
-.css
+**.css
