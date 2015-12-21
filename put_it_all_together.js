@@ -1,27 +1,33 @@
 var express = require('express'),
-    app = express(),
+    path = require('path'),
     fs = require('fs'),
     stylus = require('stylus'),
-    port = process.argv[2],
-    absolutePathToJSONFile = process.argv[3],
+    bodyparser = require('body-parser'),
 
-    // this has to be the fully-qualified path to a folder,
-    // typically "/public"
-    absolutePathToPublicAssets = process.argv[4],
+    // the port this app will be listening on
+    port = process.argv[2] || 3000,
 
-    // as should this - typicall "/templates"
-    absolutePathToTemplateFolder = process.argv[5];
+    // this is the path to a cheeky json file that gets served in one
+    // of the JSON examples/endpoints below
+    absolutePathToJSONFile = process.argv[3] || path.join(__dirname, 'some_json.json'),
+
+    // this has to be the fully-qualified path to a folder, typically "/public",
+    // where public/static assets will be served from
+    absolutePathToPublicAssets = process.argv[4] || path.join(__dirname, 'public'),
+
+    // this has to be the fully-qualified path to a folder, typically "/templates",
+    // where view templates will be found
+    absolutePathToTemplateFolder = process.argv[5] || path.join(__dirname, 'templates'),
+    app = express();
 
 // To parse x-www-form-urlencoded request bodies Express.js can use urlencoded()
 // middleware from the body-parser module.
-var bodyparser = require('body-parser')
-app.use(bodyparser.urlencoded({extended: false}))
+app.use(bodyparser.urlencoded({extended: false}));
 
 // note that express is defaulting to the index.html file located
 // at the given path - and the given path is expected to be a folder.
 console.log("html and css should be located here: " + absolutePathToPublicAssets);
 app.use(express.static(absolutePathToPublicAssets));
-
 
 // and enable the 'stylus' compiler.
 // note that normally your public assets are located at
@@ -35,11 +41,9 @@ app.use(express.static(absolutePathToPublicAssets));
 // see!?  exclude the 'public' folder ...
 app.use(stylus.middleware(absolutePathToPublicAssets));
 
-
 // enable jade templates
 app.set('views', absolutePathToTemplateFolder);
 app.set('view engine', 'jade');
-
 
 // parse query params and kick it back as json
 app.get("/search", function(req,res){
@@ -86,7 +90,7 @@ app.post('/form', function(req,res){
         res.end("Nothing to show!");
         return;
     }
-    
+
     var strReversed = req.body.str.split('').reverse().join('');
     res.end(strReversed);
 });
